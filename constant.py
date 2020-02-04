@@ -7,6 +7,8 @@ Created on Fri Jan 31 14:15:20 2020
 @author: KaiShengChoi
 """
 
+import pyaudio
+
 """
 The path of Google Speech Command Datasets
 """
@@ -17,18 +19,28 @@ dataset_path = "G:\\Keyword Spotting System\\speech_commands_v0.01"
 """
 List of commands of Google Commands Datasets v0.01
 """
+
 commands = ["yes", "no", "up", "down", "left","right", "on", "off", "stop", 
             "go", "zero", "one", "two", "three", "four", "five", "six", 
             "seven", "eight", "nine", "bed", "bird", "cat", "dog", "happy", 
             "house","marvin", "sheila","tree", "wow"]
 
-
 """
 List of commands to be trained on
 """
+
 train_commands = ["zero", "one", "two", "three", "four", "five", "six", 
                   "seven","eight","nine", "ten"]
 
+"""
+WAV configuration
+"""
+
+FORMAT = pyaudio.paInt16
+CHANNELS = 1
+RATE = 16000
+CHUNK = 1600
+RECORD_SECONDS = 1
 
 """
 MFCC Parameters
@@ -44,10 +56,10 @@ frame_step = 160           #10ms
 fft_length = frame_length  #25ms
 
 #lower edge frequency of spectrum
-lower_edge_hertz = 80.0
+lower_edge_hertz = 40.0
 
 #upper edge frequency of spectrum
-upper_edge_hertz = 7600.0
+upper_edge_hertz = 4000.0
 
 #number of bands in mel-scale
 num_mel_bins = 80

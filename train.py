@@ -4,13 +4,15 @@ Created on Fri Jan 31 18:06:28 2020
 
 @author: derri
 """
-
+#%%
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
-from tensorflow.keras import models, layers
+from tensorflow.keras import models, layers, regularizers
 from dataset import dataset_sort, dataset_gen, train_list
+
+tf.keras.backend.clear_session() 
 
 train_list()
 dataset_sort()
@@ -19,26 +21,53 @@ train_dataset,train_label, testing_dataset, testing_label ,validation_dataset, v
 train_dataset = tf.reshape(train_dataset, [18620, 98, 13, 1])
 testing_dataset = tf.reshape(testing_dataset, [2552, 98, 13, 1])
 validation_dataset = tf.reshape(validation_dataset,[2494, 98, 13,1])
+#%%
+model1 = models.Sequential()
+model1.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape = (98,13,1)))
+model1.add(layers.MaxPooling2D((2, 2)))
+model1.add(layers.Conv2D(32, (3, 3), activation='relu'))
+model1.add(layers.MaxPooling2D((2, 2)))
+model1.add(layers.Flatten())
+model1.add(layers.Dense(64, activation='relu'))
+model1.add(layers.Dense(10, activation='softmax'))
+model1.summary()
 
-model = models.Sequential()
-model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape = (98,13,1)))
-model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(32, (3, 3), activation='relu'))
-model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Flatten())
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(10, activation='softmax'))
-model.summary()
+model1.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-history = model.fit(train_dataset , train_label, epochs = 100, 
+history1 = model1.fit(train_dataset , train_label, epochs = 40, 
                     validation_data = (validation_dataset, validation_label))
+#%%
+model2 = models.Sequential()
+model2.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape = (98,13,1), kernel_regularizer=regularizers.l2(0.001)))
+model2.add(layers.MaxPooling2D((2, 2)))
+model2.add(layers.Conv2D(32, (3, 3), activation='relu', kernel_regularizer=regularizers.l2(0.001)))
+model2.add(layers.MaxPooling2D((2, 2)))
+model2.add(layers.Flatten())
+model2.add(layers.Dropout(0.2))
+model2.add(layers.Dense(64, activation='relu', kernel_regularizer=regularizers.l2(0.001)))
+model2.add(layers.Dropout(0.2))
+model2.add(layers.Dense(10, activation='softmax', kernel_regularizer=regularizers.l2(0.001)))
+model2.summary()
 
-plt.plot(history.history['accuracy'], label='accuracy')
-plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
+model2.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+history2 = model2.fit(train_dataset , train_label, epochs = 40, 
+                    validation_data = (validation_dataset, validation_label))
+#%%
+plt.plot(history1.history['accuracy'], label='model1_accuracy')
+plt.plot(history1.history['val_accuracy'], label = 'model1_val_accuracy')
+plt.plot(history2.history['accuracy'], label='model2_accuracy')
+plt.plot(history2.history['val_accuracy'], label = 'model2_val_accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.ylim([0.5, 1])
 plt.legend(loc='lower right')
 
+results1 = model1.evaluate(testing_dataset, testing_label, verbose = 0)
+print("model1 ", results1)
+results2 = model2.evaluate(testing_dataset, testing_label, verbose = 0)
+print("model2 ", results2)
+
+model1.save('model1.h5') 
+model2.save('model2.h5') 
