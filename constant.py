@@ -13,7 +13,7 @@ import pyaudio
 The path of Google Speech Command Datasets
 """
 
-dataset_path = "G:\\Keyword Spotting System\\speech_commands_v0.01"
+dataset_path = "/home/derrick/Code/speech_commands_v0.01"
 
 
 """

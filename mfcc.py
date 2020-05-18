@@ -8,35 +8,32 @@ Created on Thu Jan 30 19:41:31 2020
 @author: KaiShengChoi
 """
 
-import os
-import numpy as np
 import tensorflow as tf 
-import matplotlib.pyplot as plt
 import constant
+import audio
 
-
-def mfcc (filename):   
+def mfcc (samples, sample_rate):   
     """
     
     Descriptions
     ------------
-    Calculate MFCC of WAV voice file
+    Calculate MFCC of sample voice
     
     
     Parameters
     ----------
-    filename : string
-        path of the wav voice file.
+    samples : tensor 
+        raw data of the voice for which MFCC to be calculated. 
+    sample_rate : integer
+        sample rate of input voice samples
 
     Returns
     -------
-    mfccs.numpy()[0] :numpy of float32
+    mfccs : tensor 
         mfcc of voice.
 
     """
-    raw_audio = tf.io.read_file(filename)
-    samples, sample_rate = tf.audio.decode_wav(contents = raw_audio, \
-        desired_samples = constant.desired_samples)
+
     #transpose the dimension of samples
     signals = tf.reshape(samples, [1, -1])
     
@@ -63,15 +60,11 @@ def mfcc (filename):
     mfccs = tf.signal.mfccs_from_log_mel_spectrograms( \
         log_mel_spectrograms)[..., :constant.num_mfccs]
     
-    return mfccs.numpy()[0]
+    return mfccs
 
 
 if __name__ == "__main__":
-    keyword = "bed"
-    folders = os.listdir("G:\\Keyword Spotting System\\speech_commands_v0.01" + "\\" + keyword)
-    for files in folders:
-        filename = str(constant.dataset_path) + '\\' + keyword +'\\' + files
-        mfcc_bed = mfcc(filename)
-        fig = plt.figure(figsize=(14,14))
-        plt.ylabel("MFCC (log) coefficient")
-        plt.imshow(np.swapaxes(mfcc_bed,0,1))
+    filename = constant.dataset_path + "/bed/0a7c2a8d_nohash_0.wav"
+    samples, sample_rate = audio.decode_wav(filename)
+    coeff = mfcc(samples, sample_rate)
+    

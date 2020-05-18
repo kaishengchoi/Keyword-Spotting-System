@@ -28,15 +28,15 @@ def train_list():
     None.
 
     """
-    testing_list = open(dataset_path + "\\" + "testing_list.txt","r")
-    validation_list = open(dataset_path + "\\" + "validation_list.txt","r")
-    train_list = open(dataset_path + "\\" + "train_list.txt","w+")
+    testing_list = open(dataset_path + "/" + "testing_list.txt","r")
+    validation_list = open(dataset_path + "/" + "validation_list.txt","r")
+    train_list = open(dataset_path + "/" + "train_list.txt","w+")
     
     testing_voices_list = testing_list.read().split("\n")
     validation_voices_list =  validation_list.read().split("\n")
     
     for directive in commands:
-        voices_list = os.listdir(dataset_path + "\\" + directive)
+        voices_list = os.listdir(dataset_path + "/" + directive)
         for voice in voices_list:
             voice = directive + "/" + voice
             if (not (voice in testing_voices_list)) and (not (voice in validation_voices_list)):
@@ -66,9 +66,9 @@ def dataset_sort():
     None.
 
     """
-    testing_list = open(dataset_path + "\\" + "testing_list.txt","r+")
-    validation_list = open(dataset_path + "\\" + "validation_list.txt","r+")
-    train_list = open(dataset_path + "\\" + "train_list.txt", "r+")
+    testing_list = open(dataset_path + "/" + "testing_list.txt","r+")
+    validation_list = open(dataset_path + "/" + "validation_list.txt","r+")
+    train_list = open(dataset_path + "/" + "train_list.txt", "r+")
     
     testing_dataset = open('testing_dataset.txt', 'w+') 
     validation_dataset = open('validation_dataset.txt', 'w+') 
@@ -76,15 +76,15 @@ def dataset_sort():
     
     for files in testing_list.read().split("\n"):
         if files.split("/")[0] in train_commands:
-            testing_dataset.write(files.replace("/","\\") + "\n")
+            testing_dataset.write(files + "\n")
             
     for files in validation_list.read().split("\n"):
         if files.split("/")[0] in train_commands:
-            validation_dataset.write(files.replace("/","\\")  + "\n")
+            validation_dataset.write(files  + "\n")
             
     for files in train_list.read().split("\n"):
         if files.split("/")[0] in train_commands:
-            train_dataset.write(files.replace("/","\\")  + "\n")
+            train_dataset.write(files  + "\n")
     
     testing_list.close()
     validation_list.close()
@@ -138,8 +138,8 @@ def dataset_gen():
     
     for files in testing_dataset_list.read().split("\n"):
         if files != "":
-            testing_dataset.append(mfcc(dataset_path + "\\" + files));
-            label = train_commands.index(files.split("\\")[0])
+            testing_dataset.append(mfcc(dataset_path + "/" + files));
+            label = train_commands.index(files.split("/")[0])
             testing_label.append([label])
             
     testing_dataset = tf.cast(testing_dataset, tf.float32)
@@ -147,8 +147,8 @@ def dataset_gen():
             
     for files in validation_dataset_list.read().split("\n"):
         if files != "":
-            validation_dataset.append(mfcc(dataset_path + "\\" + files));
-            label = train_commands.index(files.split("\\")[0])
+            validation_dataset.append(mfcc(dataset_path + "/" + files));
+            label = train_commands.index(files.split("/")[0])
             validation_label.append([label])
             
     validation_dataset = tf.cast(validation_dataset, tf.float32)
@@ -156,8 +156,8 @@ def dataset_gen():
         
     for files in train_dataset_list.read().split("\n"):
         if files != "":
-            train_dataset.append(mfcc(dataset_path + "\\" + files));
-            label = train_commands.index(files.split("\\")[0])
+            train_dataset.append(mfcc(dataset_path + "/" + files));
+            label = train_commands.index(files.split("/")[0])
             train_label.append([label])
             
     train_dataset = tf.cast(train_dataset, tf.float32)
