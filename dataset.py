@@ -12,6 +12,7 @@ import tensorflow as tf
 from constant import dataset_path, train_commands, commands
 from mfcc import mfcc
 from audio import decode_wav
+from numpy import save, load
 
 def train_list():
     """
@@ -71,9 +72,9 @@ def dataset_sort():
     validation_list = open(dataset_path + "/" + "validation_list.txt","r+")
     train_list = open(dataset_path + "/" + "train_list.txt", "r+")
     
-    testing_dataset = open('testing_dataset.txt', 'w+') 
-    validation_dataset = open('validation_dataset.txt', 'w+') 
-    train_dataset = open('train_dataset.txt', 'w+') 
+    testing_dataset = open('./dataset/testing_dataset.txt', 'w+') 
+    validation_dataset = open('./dataset/validation_dataset.txt', 'w+') 
+    train_dataset = open('./dataset/train_dataset.txt', 'w+') 
     
     for files in testing_list.read().split("\n"):
         if files.split("/")[0] in train_commands:
@@ -125,47 +126,33 @@ def dataset_gen():
 
     """
     def get_mfcc (filename):
+        
         samples, sample_rate = decode_wav(filename)
         return mfcc(samples, sample_rate)
     
-    testing_dataset_list = open('testing_dataset.txt', 'r') 
-    validation_dataset_list = open('validation_dataset.txt', 'r') 
-    train_dataset_list = open('train_dataset.txt', 'r') 
-    
-    testing_dataset = []
-    validation_dataset = []
-    train_dataset = []
-    
-    testing_label = []
-    validation_label = []
-    train_label = []
-    
-    for files in testing_dataset_list.read().split("\n"):
-        if files != "":
-            testing_dataset.append(get_mfcc(dataset_path + "/" + files));
-            label = train_commands.index(files.split("/")[0])
-            testing_label.append([label])
-            
-    testing_dataset = tf.cast(testing_dataset, tf.float32)
-    testing_label = tf.cast(testing_label, tf.uint8)          
-            
-    for files in validation_dataset_list.read().split("\n"):
-        if files != "":
-            validation_dataset.append(get_mfcc(dataset_path + "/" + files));
-            label = train_commands.index(files.split("/")[0])
-            validation_label.append([label])
-            
-    validation_dataset = tf.cast(validation_dataset, tf.float32)
-    validation_label = tf.cast(validation_label, tf.uint8)     
+    def sort_out (dataset_list):
         
-    for files in train_dataset_list.read().split("\n"):
-        if files != "":
-            train_dataset.append(get_mfcc(dataset_path + "/" + files));
-            label = train_commands.index(files.split("/")[0])
-            train_label.append([label])
-            
-    train_dataset = tf.cast(train_dataset, tf.float32)
-    train_label = tf.cast(train_label, tf.uint8)    
+        dataset = []
+        dataset_label = []
+    
+        for files in dataset_list.read().split("\n"):
+            if files != "":
+                dataset.append(get_mfcc(dataset_path + "/" + files));
+                label = train_commands.index(files.split("/")[0])
+                dataset_label.append([label])
+                
+        dataset = tf.cast(dataset, tf.float32)
+        dataset_label = tf.cast(dataset_label, tf.uint8)          
+     
+        return dataset, dataset_label
+        
+    testing_dataset_list = open('./dataset/testing_dataset.txt', 'r') 
+    validation_dataset_list = open('./dataset/validation_dataset.txt', 'r') 
+    train_dataset_list = open('./dataset/train_dataset.txt', 'r') 
+    
+    testing_dataset, testing_label = sort_out (testing_dataset_list)
+    validation_dataset, validation_label = sort_out (validation_dataset_list)
+    train_dataset, train_label = sort_out (train_dataset_list)
     
     testing_dataset_list.close()
     validation_dataset_list.close()
@@ -173,16 +160,41 @@ def dataset_gen():
     
     return (train_dataset,train_label, testing_dataset, testing_label ,validation_dataset, validation_label)
 
+def get_dataset ():
+    
+    saved_command = list(load('./dataset/saved_commands.npy', allow_pickle=True))
+    if commands != saved_command :
+        print("Updating Dataset......")
+        train_list()
+        dataset_sort()
+        train_dataset,train_label, testing_dataset, testing_label ,validation_dataset, validation_label = dataset_gen()
+        save('./dataset/train_dataset.npy', train_dataset)
+        save('./dataset/train_label.npy', train_label)
+        save('./dataset/testing_dataset.npy', testing_dataset)
+        save('./dataset/testing_label.npy', testing_label)
+        save('./dataset/validation_dataset.npy', validation_dataset)
+        save('./dataset/validation_label.npy', validation_label)
+        save('./dataset/saved_commands.npy', commands)
+        print("Dataset Updated!")
+    else:
+        print("Fetching Dataset......")
+        train_dataset = load('./dataset/train_dataset.npy', allow_pickle=True)
+        train_label = load('./dataset/train_label.npy', allow_pickle=True)
+        testing_dataset = load('./dataset/testing_dataset.npy', allow_pickle=True)
+        testing_label = load('./dataset/testing_label.npy', allow_pickle=True)
+        validation_dataset = load('./dataset/validation_dataset.npy', allow_pickle=True)
+        validation_label = load('./dataset/validation_label.npy', allow_pickle=True)
+        print("Done Fetching Dataset.")
+        
+        train_dataset = tf.reshape(train_dataset, [train_dataset.shape[0], train_dataset.shape[2], train_dataset.shape[3], train_dataset.shape[1]])
+        testing_dataset = tf.reshape(testing_dataset, [testing_dataset.shape[0], testing_dataset.shape[2], testing_dataset.shape[3], testing_dataset.shape[1]])
+        validation_dataset = tf.reshape(validation_dataset,[validation_dataset.shape[0], validation_dataset.shape[2], validation_dataset.shape[3],validation_dataset.shape[1]])
+
+    return train_dataset,train_label, testing_dataset, testing_label ,validation_dataset, validation_label
+
 if __name__ == "__main__":
-    train_list()
-    dataset_sort()
-    train_dataset,train_label, testing_dataset, testing_label ,validation_dataset, validation_label = dataset_gen()
-    print(train_dataset)
-    print(train_label)
-    print(testing_dataset)
-    print(testing_label)
-    print(validation_dataset)
-    print(validation_label)
+    train_dataset,train_label, testing_dataset, testing_label ,validation_dataset, validation_label = get_dataset ()
+
 
     
     

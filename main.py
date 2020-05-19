@@ -14,3 +14,4 @@ import dataset
 import train
 import prediction
 
+runfile('/home/derrick/Code/KWS/dataset.py', wdir='/home/derrick/Code/KWS')

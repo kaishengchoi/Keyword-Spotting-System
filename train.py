@@ -10,17 +10,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.keras import models, layers, regularizers
-from dataset import dataset_sort, dataset_gen, train_list
+from dataset import dataset_sort, dataset_gen, train_list, get_dataset
 
 tf.keras.backend.clear_session() 
 
-train_list()
-dataset_sort()
-train_dataset,train_label, testing_dataset, testing_label ,validation_dataset, validation_label = dataset_gen()
 
-train_dataset = tf.reshape(train_dataset, [18620, 98, 13, 1])
-testing_dataset = tf.reshape(testing_dataset, [2552, 98, 13, 1])
-validation_dataset = tf.reshape(validation_dataset,[2494, 98, 13,1])
+train_dataset,train_label, testing_dataset, testing_label ,validation_dataset, validation_label = get_dataset()
+
+
 #%%
 model1 = models.Sequential()
 model1.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape = (98,13,1)))
@@ -52,7 +49,7 @@ model2.summary()
 
 model2.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-history2 = model2.fit(train_dataset , train_label, epochs = 40, 
+history2 = model2.fit(train_dataset , train_label, epochs = 80, 
                     validation_data = (validation_dataset, validation_label))
 #%%
 plt.plot(history1.history['accuracy'], label='model1_accuracy')
@@ -69,5 +66,5 @@ print("model1 ", results1)
 results2 = model2.evaluate(testing_dataset, testing_label, verbose = 0)
 print("model2 ", results2)
 
-model1.save('model1.h5') 
-model2.save('model2.h5') 
+model1.save('./models/model1.h5') 
+model2.save('./models/model2.h5') 

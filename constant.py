@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-The file consists of constants for Keyword Sporting System.
+The file consists of configurations and constants for Keyword Sporting System.
 
 Created on Fri Jan 31 14:15:20 2020
 
@@ -68,11 +68,8 @@ num_mel_bins = 80
 num_mfccs = 13
 
 """
-Model's Parameters
+Model's Architecture, Parameters and Hyperparameter
 """
 
 
 
-"""
-Model's HyperParameters
-"""
