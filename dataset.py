@@ -11,6 +11,7 @@ import os
 import tensorflow as tf
 from constant import dataset_path, train_commands, commands
 from mfcc import mfcc
+from audio import decode_wav
 
 def train_list():
     """
@@ -123,6 +124,9 @@ def dataset_gen():
         label for validation dataset.
 
     """
+    def get_mfcc (filename):
+        samples, sample_rate = decode_wav(filename)
+        return mfcc(samples, sample_rate)
     
     testing_dataset_list = open('testing_dataset.txt', 'r') 
     validation_dataset_list = open('validation_dataset.txt', 'r') 
@@ -138,7 +142,7 @@ def dataset_gen():
     
     for files in testing_dataset_list.read().split("\n"):
         if files != "":
-            testing_dataset.append(mfcc(dataset_path + "/" + files));
+            testing_dataset.append(get_mfcc(dataset_path + "/" + files));
             label = train_commands.index(files.split("/")[0])
             testing_label.append([label])
             
@@ -147,7 +151,7 @@ def dataset_gen():
             
     for files in validation_dataset_list.read().split("\n"):
         if files != "":
-            validation_dataset.append(mfcc(dataset_path + "/" + files));
+            validation_dataset.append(get_mfcc(dataset_path + "/" + files));
             label = train_commands.index(files.split("/")[0])
             validation_label.append([label])
             
@@ -156,7 +160,7 @@ def dataset_gen():
         
     for files in train_dataset_list.read().split("\n"):
         if files != "":
-            train_dataset.append(mfcc(dataset_path + "/" + files));
+            train_dataset.append(get_mfcc(dataset_path + "/" + files));
             label = train_commands.index(files.split("/")[0])
             train_label.append([label])
             
