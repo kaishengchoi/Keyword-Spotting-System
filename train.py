@@ -12,6 +12,10 @@ import tensorflow as tf
 from tensorflow.keras import models, layers, regularizers
 from dataset import dataset_sort, dataset_gen, train_list, get_dataset
 
+physical_devices = tf.config.experimental.list_physical_devices('GPU') 
+for physical_device in physical_devices: 
+    tf.config.experimental.set_memory_growth(physical_device, True)
+    
 tf.keras.backend.clear_session() 
 
 

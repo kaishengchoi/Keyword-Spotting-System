@@ -30,7 +30,7 @@ List of commands to be trained on
 """
 
 train_commands = ["zero", "one", "two", "three", "four", "five", "six", 
-                  "seven","eight","nine", "ten"]
+                  "seven","eight","nine"]
 
 """
 WAV configuration
@@ -39,7 +39,7 @@ WAV configuration
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
-CHUNK = 1600
+CHUNK = 160
 RECORD_SECONDS = 1
 
 """

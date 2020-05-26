@@ -38,7 +38,6 @@ def decode_wav (filename):
     raw_audio = tf.io.read_file(filename)
     samples, sample_rate = tf.audio.decode_wav(contents = raw_audio, \
         desired_samples = constant.desired_samples)
-        
     return samples, sample_rate
  
 
@@ -90,5 +89,5 @@ def record(filename):
     waveFile.close()
     
 if __name__ == "__main__":
-    record("G:\\Keyword Spotting System\\code\\test.wav")
+    record("test.wav")
     
